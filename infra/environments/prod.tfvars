@@ -28,25 +28,26 @@ instance_type = ""
 
 # ----- Backend (Express) -----------------------------------------------------
 backend_path      = "app/backend" # folder with package.json (relative to the repo root)
-app_port          = 8080          # port your server listens on (receives PORT=<this>)
+app_port          = 5000          # port your server listens on (receives PORT=<this>)
 health_check_path = "/api/health" # must return HTTP 200 when healthy
 api_path_patterns = ["/api/*"]    # paths CloudFront sends to the backend
 
 # Plain (non-secret) environment variables for the backend container.
 app_environment = {
-  LOG_LEVEL = "info"
+  SMTP_PORT = "587"
 }
 
 # ----- Frontend (React) ------------------------------------------------------
 frontend_path          = "app/frontend"
 frontend_build_command = "npm ci && npm run build"
 frontend_build_dir     = "dist" # "build" for Create React App
+frontend_build_env     = { VITE_API_BASE_URL = "/api" }
 
 # ----- Database --------------------------------------------------------------
 # "local"    = MongoDB container on the server + EBS volume + daily S3 backups (free)
 # "external" = MongoDB Atlas / DocumentDB; set mongodb_uri in prod.secrets.tfvars
 database_mode        = "local"
-mongodb_uri_env_name = "MONGODB_URI" # env var your backend reads the connection string from
+mongodb_uri_env_name = "MONGO_URI" # env var your backend reads the connection string from
 
 # ----- CI/CD (optional) ------------------------------------------------------
 # "owner/repo" to let GitHub Actions deploy with short-lived credentials (OIDC).

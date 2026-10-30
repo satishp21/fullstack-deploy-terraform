@@ -1,37 +1,90 @@
-import { createApp } from './app.js';
-import { config } from './config.js';
-import { connectToDatabase, disconnectFromDatabase } from './db.js';
-import { logger } from './logger.js';
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 
-async function start() {
-  await connectToDatabase(config.mongodbUri);
+import authRoutes from './routes/authRoutes.js';
+import bookingRoutes from './routes/bookingRoutes.js';
+import deviceRoutes from './routes/deviceRoutes.js';
+import rateRoutes from './routes/rateRoutes.js';
+import sessionRoutes from './routes/sessionRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
 
-  const server = createApp().listen(config.port, () => {
-    logger.info('API listening', { port: config.port, version: config.appVersion, env: config.nodeEnv });
-  });
+dotenv.config();
 
-  // Keep idle connections open longer than the reverse proxy does, otherwise the proxy
-  // can reuse a socket Node has just closed and return an intermittent 502.
-  server.keepAliveTimeout = 65_000;
-  server.headersTimeout = 66_000;
-
-  // Graceful shutdown: Docker sends SIGTERM on every redeploy.
-  let shuttingDown = false;
-  const shutdown = (signal) => {
-    if (shuttingDown) return;
-    shuttingDown = true;
-    logger.info('Shutting down', { signal });
-    server.close(async () => {
-      await disconnectFromDatabase().catch(() => {});
-      process.exit(0);
-    });
-    setTimeout(() => process.exit(1), 10_000).unref();
-  };
-  process.on('SIGTERM', () => shutdown('SIGTERM'));
-  process.on('SIGINT', () => shutdown('SIGINT'));
+const app = express();
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 2);
 }
 
-start().catch((err) => {
-  logger.error('Failed to start', { error: err.message, stack: err.stack });
+// Middleware
+// configure CORS.  We prefer an explicit front‑end URL so the Access-Control-
+// Allow-Origin header matches exactly what the browser sends; using `true` will
+// echo the incoming origin.  It's important that the origin value contains **no
+// trailing slash** because browsers compare strings literally and will reject a
+// mismatch.  Users often accidentally include a slash in the CLIENT_URL env var
+// (see the Vercel screenshot) which caused a permanent CORS failure in prod.
+//
+// Strip any trailing slash from the environment variable as a safeguard.
+let clientUrl = process.env.CLIENT_URL || '';
+if (clientUrl.endsWith('/')) {
+  clientUrl = clientUrl.slice(0, -1);
+}
+const corsOptions = {
+  origin: clientUrl || true, // `true` echoes back request origin when no URL
+  credentials: true
+};
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(morgan('dev'));
+
+// Basic health check
+app.get('/api/health', (req, res) => {
+  const databaseConnected = mongoose.connection.readyState === 1;
+  res
+    .status(databaseConnected ? 200 : 503)
+    .json({ status: databaseConnected ? 'ok' : 'degraded' });
+});
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/devices', deviceRoutes);
+app.use('/api/rates', rateRoutes);
+app.use('/api/sessions', sessionRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/contact', contactRoutes);
+
+// Global error handler
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error(err);
+  res
+    .status(err.status || 500)
+    .json({ message: err.message || 'Internal server error' });
+});
+
+const PORT = Number(process.env.PORT) || 5000;
+const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
+
+const startServer = async () => {
+  if (!MONGO_URI) {
+    throw new Error('MONGO_URI is required');
+  }
+  await mongoose.connect(MONGO_URI);
+  console.log('MongoDB connected');
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
+startServer().catch((err) => {
+  console.error('Failed to start server', err);
   process.exit(1);
 });
+
+export default app;

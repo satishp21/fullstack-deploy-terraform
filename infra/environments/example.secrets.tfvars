@@ -7,8 +7,12 @@
 
 # Secret environment variables for your backend (JWT keys, API tokens, SMTP passwords...)
 app_secrets = {
-  # JWT_SECRET     = "change-me-to-a-long-random-string"
-  # STRIPE_API_KEY = "sk_live_..."
+  # JWT_SECRET        = "replace-with-a-long-random-string"
+  # RAZORPAY_KEY_ID   = "your-key-id"
+  # RAZORPAY_KEY_SECRET = "your-key-secret"
+  # SMTP_HOST         = "smtp.example.com"
+  # SMTP_USER         = "your-email@example.com"
+  # SMTP_PASS         = "your-email-password"
 }
 
 # Only when database_mode = "external" (MongoDB Atlas, Amazon DocumentDB...)

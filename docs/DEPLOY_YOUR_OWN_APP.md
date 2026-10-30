@@ -1,6 +1,6 @@
-# Deploy your own MERN app
+# Deploy the GameZone app (or your own MERN app)
 
-The infrastructure doesn't depend on the sample app. Any MERN app can be deployed by **pointing the tfvars file at it**, provided it follows a few conventions. This page has the checklist, the steps, and recipes for common app layouts.
+The infrastructure doesn't depend on the app's business logic. The repository's `app/` contains the GameZone frontend and backend, configured for this deployment. Other MERN apps can be deployed by **pointing the tfvars file at them**, provided they follow a few conventions. This page has the checklist, the steps, and recipes for common app layouts.
 
 ---
 
@@ -41,17 +41,24 @@ app.set('trust proxy', 2); // CloudFront + nginx -> correct req.ip, req.secure, 
 ## 2. Step by step
 
 1. **Choose where the app lives.**
-   - *Replace the sample*: delete `app/backend` and `app/frontend` and copy your folders in. The defaults then work as-is.
+   - *Use GameZone*: `app/backend` and `app/frontend` are already configured; the defaults in `infra/environments/prod.tfvars` point to them.
+   - *Replace GameZone*: replace `app/backend` and `app/frontend` with your folders and adjust the backend/frontend settings in tfvars.
    - *Keep your app where it is*: use relative (`../shop/server`) or absolute (`C:/projects/shop/server`) paths in tfvars. Forward slashes work on Windows too.
    - *Copy the toolkit into your repo*: see [section 4](#4-copy-this-toolkit-into-an-existing-repository).
 2. **Create the environment file** `infra/environments/prod.tfvars` (copy the existing one) and adjust the backend, frontend and database settings.
 3. **Secrets** go in `infra/environments/prod.secrets.tfvars` (copy `example.secrets.tfvars`):
    ```hcl
    app_secrets = {
-     JWT_SECRET = "generate-a-long-random-value"
+     JWT_SECRET          = "generate-a-long-random-value"
+     RAZORPAY_KEY_ID     = "your-key-id"
+     RAZORPAY_KEY_SECRET = "your-key-secret"
+     SMTP_HOST           = "smtp.example.com"
+     SMTP_USER           = "your-email@example.com"
+     SMTP_PASS           = "your-email-password"
    }
    ```
-4. **Lock files**: run `npm install` in your frontend folder (needed by `npm ci`) and ideally in the backend.
+   GameZone reads `MONGO_URI` (configured by `mongodb_uri_env_name`), `JWT_SECRET`, Razorpay credentials, and SMTP settings from the environment. The frontend calls the same site's `/api` path; the Vite build setting is already configured for that.
+4. **Lock files**: GameZone's lockfiles are included. For another app, or whenever dependencies change, run `npm install` in the frontend (and backend, if applicable) and commit the updated `package-lock.json`; the frontend deployment uses `npm ci`.
 5. **Deploy**: `npm run deploy`. If the backend fails its health check, the deploy stops and shows the last 100 log lines.
 
 Find the env var names your backend expects:

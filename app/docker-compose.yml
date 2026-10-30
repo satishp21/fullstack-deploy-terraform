@@ -1,7 +1,6 @@
-# Local development: MongoDB + the API in containers.
-#   docker compose up --build        (from the app/ folder)
-#   cd frontend && npm run dev       (React on http://localhost:5173, proxies /api to :8080)
-# This file is NOT used in AWS - the server runs infra/modules/app-server/files/docker-compose.yml.
+# Local development: MongoDB + the GameZone API.
+# Copy backend/.env.example to backend/.env before starting the API.
+# Run the frontend separately with: npm run dev --prefix frontend
 services:
   mongo:
     image: mongo:8.0
@@ -17,16 +16,26 @@ services:
 
   backend:
     build: ./backend
+    env_file:
+      - ./backend/.env
     environment:
       NODE_ENV: development
-      PORT: "8080"
-      MONGODB_URI: mongodb://mongo:27017/app
-      LOG_LEVEL: debug
+      PORT: "5000"
+      MONGO_URI: mongodb://mongo:27017/jaynetic_zone
     ports:
-      - "8080:8080"
+      - "5000:5000"
     depends_on:
       mongo:
         condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:5000/api/health', r => process.exit(r.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mongo-data:

@@ -1,61 +1,35 @@
-# Sample MERN app
+# GameZone app
 
-A small task list that exercises the full stack: React → CloudFront → Express → MongoDB. Replace it with your own app; see [docs/DEPLOY_YOUR_OWN_APP.md](../docs/DEPLOY_YOUR_OWN_APP.md).
+The app is split into a React/Vite frontend and an Express/Mongoose backend:
 
-```text
-app/
-├── backend/                 Express 5 + Mongoose 9 (Node 24)
-│   ├── src/
-│   │   ├── server.js        connect to MongoDB (with retries), start HTTP server, graceful shutdown
-│   │   ├── app.js           middleware (helmet, JSON body, request logging), routes, error handling
-│   │   ├── config.js        env vars: PORT, MONGODB_URI, APP_VERSION, TRUST_PROXY_HOPS, LOG_LEVEL
-│   │   ├── db.js            Mongoose connection helpers
-│   │   ├── logger.js        JSON logger (one line per event, CloudWatch-friendly)
-│   │   ├── models/task.model.js
-│   │   ├── routes/health.routes.js   GET /api/health  (200 ok / 503 when the DB is down)
-│   │   ├── routes/task.routes.js     /api/tasks CRUD
-│   │   └── middleware/error-handler.js
-│   ├── Dockerfile           multi-stage, production deps only, runs as non-root "node" user
-│   └── .env.example
-├── frontend/                React 19 + Vite 8
-│   ├── src/App.jsx          task list UI + API status badge
-│   ├── src/api.js           fetch wrapper; relative /api URLs
-│   └── vite.config.js       dev proxy /api -> http://localhost:8080
-└── docker-compose.yml       local development: MongoDB + API
-```
+- `frontend/` contains the GameZone booking, account, and admin UI.
+- `backend/` contains the `/api` endpoints and MongoDB models.
+- `docker-compose.yml` runs MongoDB and the backend for local development.
 
-## API
+## Local development
 
-| Method | Path | Body | Response |
-|---|---|---|---|
-| GET | `/api/health` | - | `{ status, database, version, environment, uptimeSeconds, timestamp }` |
-| GET | `/api/tasks` | - | `[{ id, title, completed, createdAt, updatedAt }]` (newest first, max 500) |
-| POST | `/api/tasks` | `{ "title": "Buy milk" }` | `201` + task |
-| PATCH | `/api/tasks/:id` | `{ "title"?: string, "completed"?: boolean }` | updated task |
-| DELETE | `/api/tasks/:id` | - | `204` |
+1. Copy `backend/.env.example` to `backend/.env` and set a strong `JWT_SECRET`. Add Razorpay and SMTP values when those features are needed.
+2. From this directory, start the database and backend:
 
-## Run locally
+   ```sh
+   docker compose up --build
+   ```
 
-Option A, everything in Docker except the React dev server:
+3. In another terminal, start the frontend:
 
-```bash
-cd app
-docker compose up --build                 # MongoDB on :27017, API on http://localhost:8080
-npm install --prefix frontend
-npm run dev --prefix frontend             # http://localhost:5173
-```
+   ```sh
+   npm install --prefix frontend
+   npm run dev --prefix frontend
+   ```
 
-Option B, Node directly (needs a MongoDB on localhost:27017, e.g. `docker compose up mongo`):
+The frontend is served at `http://localhost:3000` and proxies `/api` to the backend on port `5000`.
 
-```bash
-cd app/backend
-copy .env.example .env                    # cp on macOS/Linux
-npm install
-npm run dev                               # node --watch, reloads on changes
-```
+To run the backend directly instead, start MongoDB, set `MONGO_URI` in `backend/.env`, then run `npm install` and `npm run dev` from `backend/`.
 
-## How it runs in AWS
+To seed the database, run `npm run seed` from `backend/` after configuring `MONGO_URI`.
 
-- The frontend build (`frontend/dist`) is uploaded to S3 and served by CloudFront.
-- The backend image is built from `backend/Dockerfile`, pushed to ECR and started on the EC2 server with `PORT=8080`, `NODE_ENV=production`, `APP_VERSION=<image tag>` and `MONGODB_URI` from SSM Parameter Store.
-- `trust proxy` is 2 in production (CloudFront + nginx), so `req.ip` is the real client IP.
+## Deployment
+
+The Terraform defaults in `infra/environments/prod.tfvars` use these folders. The backend listens on the injected `PORT`, reports database readiness at `/api/health`, and reads the MongoDB URL from `MONGO_URI`. The frontend uses same-origin `/api` requests, routed to the backend by CloudFront and nginx.
+
+Copy `infra/environments/example.secrets.tfvars` to `infra/environments/prod.secrets.tfvars` and set `JWT_SECRET`, Razorpay credentials, and SMTP credentials there. Never commit `.env` files or real credentials.
