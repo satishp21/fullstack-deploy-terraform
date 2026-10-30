@@ -1,0 +1,25 @@
+#!/bin/bash
+# EC2 user data - runs once, on the first boot of the instance (rendered by Terraform).
+# It only downloads the deployment files from S3 and hands over to bootstrap.sh and
+# deploy-app.sh, so the real logic can change without replacing the instance.
+set -euo pipefail
+mkdir -p /var/log/app /opt/app
+exec > >(tee -a /var/log/app/bootstrap.log) 2>&1
+
+echo "[user-data] $(date -u +%FT%TZ) downloading deployment files from s3://${artifacts_bucket}/deploy/"
+for attempt in $(seq 1 30); do
+  if aws s3 cp "s3://${artifacts_bucket}/deploy/" /opt/app/ --recursive --only-show-errors --region "${aws_region}"; then
+    break
+  fi
+  echo "[user-data] download failed (attempt $attempt/30), retrying in 10s"
+  sleep 10
+done
+test -f /opt/app/settings.env || { echo "[user-data] deployment files missing - giving up"; exit 1; }
+
+chmod 0755 /opt/app/bin/*.sh
+/opt/app/bin/bootstrap.sh
+
+# Starts the last known-good backend version, if one has been deployed already
+# (matters when the instance is replaced; on a brand-new environment it does nothing).
+/opt/app/bin/deploy-app.sh
+echo "[user-data] $(date -u +%FT%TZ) done"

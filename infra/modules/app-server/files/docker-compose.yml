@@ -1,0 +1,116 @@
+# Production stack on the app server, started by bin/deploy-app.sh:
+#
+#   CloudFront --HTTP:80--> nginx --> backend (your Express image from ECR) --> mongo (optional)
+#
+# ${VARIABLES} come from settings.env (Terraform) and runtime/compose.env (written by
+# deploy-app.sh from SSM Parameter Store). The backend's own environment variables come
+# from runtime/app.env (every parameter under /<project>/<env>/app/).
+name: app
+
+services:
+  backend:
+    image: ${BACKEND_IMAGE:?BACKEND_IMAGE is not set}
+    init: true # tini as PID 1: forwards SIGTERM so the app can shut down gracefully
+    restart: unless-stopped
+    env_file:
+      - /opt/app/runtime/app.env
+    environment:
+      NODE_ENV: production
+      PORT: ${APP_PORT}
+      APP_VERSION: ${APP_VERSION:-unknown}
+    expose:
+      - "${APP_PORT}"
+    healthcheck:
+      # Uses Node itself, so it works with any Node.js image (no curl/wget needed).
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:${APP_PORT}${HEALTH_CHECK_PATH}', r => process.exit(r.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    depends_on:
+      mongo:
+        condition: service_healthy
+        required: false # mongo only exists with database_mode = "local"
+    stop_grace_period: 30s
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION}
+        awslogs-group: ${LOG_GROUP_BACKEND}
+        awslogs-stream: backend
+        awslogs-create-group: "false"
+        mode: non-blocking
+        max-buffer-size: 4m
+
+  nginx:
+    image: ${NGINX_IMAGE}
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      APP_UPSTREAM: backend:${APP_PORT}
+      ORIGIN_VERIFY_SECRET: ${ORIGIN_VERIFY_SECRET:?ORIGIN_VERIFY_SECRET is not set}
+      CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE}
+      # Only these variables are substituted in the template; nginx's own variables are left alone.
+      # "$$" is how a literal "$" is written in a compose file.
+      NGINX_ENVSUBST_FILTER: "^(APP_UPSTREAM|ORIGIN_VERIFY_SECRET|CLIENT_MAX_BODY_SIZE)$$"
+    volumes:
+      - /opt/app/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/__nginx_health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      backend:
+        condition: service_started
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION}
+        awslogs-group: ${LOG_GROUP_NGINX}
+        awslogs-stream: nginx
+        awslogs-create-group: "false"
+        mode: non-blocking
+        max-buffer-size: 4m
+
+  mongo:
+    image: ${MONGO_IMAGE}
+    profiles: ["local-db"]
+    restart: unless-stopped
+    command: ["--wiredTigerCacheSizeGB", "${MONGO_CACHE_SIZE_GB}"]
+    # ":-" (not ":?") because the whole file is interpolated even when this profile is off
+    # (database_mode = "external"), and then these secrets don't exist.
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-}
+      MONGO_APP_DATABASE: ${MONGO_DATABASE}
+      MONGO_APP_USERNAME: ${MONGO_APP_USERNAME}
+      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD:-}
+    volumes:
+      - /data/mongo:/data/db # dedicated EBS volume
+      - /opt/app/mongo/init-app-user.js:/docker-entrypoint-initdb.d/10-init-app-user.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    stop_grace_period: 60s # let MongoDB flush and shut down cleanly
+    ulimits:
+      nofile:
+        soft: 64000
+        hard: 64000
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION}
+        awslogs-group: ${LOG_GROUP_MONGO}
+        awslogs-stream: mongo
+        awslogs-create-group: "false"
+        mode: non-blocking
+        max-buffer-size: 4m

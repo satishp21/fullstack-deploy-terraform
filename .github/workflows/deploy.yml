@@ -1,0 +1,57 @@
+# Deploys the app (backend image + frontend) on every push to main, using short-lived AWS
+# credentials from GitHub OIDC - no AWS keys stored in GitHub.
+#
+# One-time setup (details: README.md > "CI/CD with GitHub Actions"):
+#   1. Set github_repository = "owner/repo" in infra/environments/prod.tfvars and run `npm run deploy`.
+#   2. Create the repository variables printed by `terraform -chdir=infra output github_actions_variables`:
+#      AWS_ROLE_ARN, AWS_REGION, PROJECT_NAME, DEPLOY_ENV
+# Infrastructure changes (Terraform) are still applied from your machine with `npm run deploy`.
+name: deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "templates/**"
+      - "scripts/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  id-token: write # required to request the OIDC token
+  contents: read
+
+concurrency:
+  group: deploy-${{ vars.DEPLOY_ENV || 'prod' }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Skipped until the repository variables exist, so forks/new repos don't fail.
+    if: ${{ vars.AWS_ROLE_ARN != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Install deploy tooling
+        run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Deploy application
+        run: >
+          node scripts/deploy.mjs --app-only --yes
+          --env "${{ vars.DEPLOY_ENV || 'prod' }}"
+          --project "${{ vars.PROJECT_NAME }}"
+          --region "${{ vars.AWS_REGION }}"

@@ -1,0 +1,12 @@
+# Used by BuildKit together with templates/Dockerfile.node (it overrides your backend's .dockerignore).
+node_modules
+npm-debug.log*
+.env
+.env.*
+!.env.example
+.git
+coverage
+dist
+build
+Dockerfile
+.dockerignore

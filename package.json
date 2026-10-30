@@ -1,0 +1,29 @@
+{
+  "name": "mern-aws-terraform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Terraform infrastructure and deployment tooling to host any MERN app on AWS (free-tier friendly, production minded).",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "deploy": "node scripts/deploy.mjs",
+    "deploy:infra": "node scripts/deploy.mjs --infra-only",
+    "deploy:app": "node scripts/deploy.mjs --app-only",
+    "destroy": "node scripts/destroy.mjs",
+    "ops": "node scripts/ops.mjs",
+    "status": "node scripts/ops.mjs status",
+    "logs": "node scripts/ops.mjs logs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudfront": "^3.1160.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.1160.0",
+    "@aws-sdk/client-ec2": "^3.1160.0",
+    "@aws-sdk/client-ecr": "^3.1160.0",
+    "@aws-sdk/client-resource-groups-tagging-api": "^3.1160.0",
+    "@aws-sdk/client-s3": "^3.1160.0",
+    "@aws-sdk/client-ssm": "^3.1160.0",
+    "@aws-sdk/client-sts": "^3.1160.0"
+  }
+}

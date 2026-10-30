@@ -1,0 +1,34 @@
+# ---------- Terraform ----------
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+.terraformrc
+terraform.rc
+# Keep .terraform.lock.hcl committed (pins provider versions).
+
+# Secrets: real secret var files are never committed (see infra/environments/example.secrets.tfvars)
+infra/environments/*.secrets.tfvars
+!infra/environments/example.secrets.tfvars
+
+# ---------- Node ----------
+node_modules/
+dist/
+build/
+coverage/
+npm-debug.log*
+yarn-error.log*
+
+# ---------- Environment files ----------
+.env
+.env.*
+!.env.example
+
+# ---------- OS / editors ----------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

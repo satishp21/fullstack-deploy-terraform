@@ -1,0 +1,10 @@
+[Unit]
+Description=Scheduled MongoDB backup (schedule overridden by app-backup.timer.d/schedule.conf)
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+RandomizedDelaySec=10min
+
+[Install]
+WantedBy=timers.target

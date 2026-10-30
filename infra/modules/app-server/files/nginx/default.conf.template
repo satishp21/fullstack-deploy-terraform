@@ -1,0 +1,63 @@
+# Reverse proxy in front of the backend container. Rendered at container start by the
+# official nginx image (envsubst replaces only APP_UPSTREAM, ORIGIN_VERIFY_SECRET and
+# CLIENT_MAX_BODY_SIZE - see NGINX_ENVSUBST_FILTER in docker-compose.yml).
+
+log_format json_combined escape=json
+  '{"time":"$time_iso8601","method":"$request_method","uri":"$request_uri",'
+  '"status":$status,"bytes":$body_bytes_sent,"request_time":$request_time,'
+  '"upstream_time":"$upstream_response_time","client":"$http_x_forwarded_for",'
+  '"user_agent":"$http_user_agent","cf_request_id":"$http_x_amz_cf_id"}';
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+server {
+    listen 80 default_server;
+    server_name _;
+    server_tokens off;
+    access_log /var/log/nginx/access.log json_combined;
+
+    client_max_body_size ${CLIENT_MAX_BODY_SIZE};
+
+    # Resolve the backend through Docker's DNS at request time, so a redeployed backend
+    # container (new IP address) is picked up immediately.
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $backend_upstream http://${APP_UPSTREAM};
+
+    gzip on;
+    gzip_proxied any;
+    gzip_min_length 1024;
+    gzip_types application/json application/javascript text/css text/plain text/xml;
+
+    # Container health check (Docker). Not reachable from the internet: the security group
+    # only admits CloudFront, and CloudFront only forwards the API paths.
+    location = /__nginx_health {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    location / {
+        # Accept only requests that came through our CloudFront distribution, which adds
+        # this secret header. Direct hits on the server's IP get 403.
+        if ($http_x_origin_verify != "${ORIGIN_VERIFY_SECRET}") {
+            return 403;
+        }
+
+        proxy_pass $backend_upstream;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Origin-Verify "";
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        # WebSocket support (e.g. socket.io)
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+
+        proxy_connect_timeout 5s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+}

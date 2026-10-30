@@ -1,0 +1,7 @@
+[Unit]
+Description=Publish the application health metric (AppHealthy) to CloudWatch
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/app/bin/healthcheck.sh

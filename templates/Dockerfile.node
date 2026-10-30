@@ -1,0 +1,29 @@
+# syntax=docker/dockerfile:1
+#
+# Generic production image for a Node.js (Express) backend.
+# scripts/deploy.mjs uses this file automatically when your backend folder has no Dockerfile.
+# The build context is your backend folder. Requirements:
+#   - package.json with a "start" script that launches the server (e.g. "node server.js")
+#   - the server listens on process.env.PORT
+#   - optional "build" script (TypeScript etc.) - it runs automatically if present
+# Files excluded from the build context are listed in Dockerfile.node.dockerignore (next to this file).
+
+ARG NODE_VERSION=24
+
+# ---- Build: install all deps, run the optional build step, then drop dev deps ----
+FROM node:${NODE_VERSION}-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+COPY . .
+RUN npm run build --if-present \
+ && npm prune --omit=dev \
+ && npm cache clean --force
+
+# ---- Runtime ----
+FROM node:${NODE_VERSION}-alpine
+ENV NODE_ENV=production
+WORKDIR /app
+COPY --from=build --chown=node:node /app ./
+USER node
+CMD ["npm", "start"]

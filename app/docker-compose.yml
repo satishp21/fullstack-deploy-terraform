@@ -1,0 +1,32 @@
+# Local development: MongoDB + the API in containers.
+#   docker compose up --build        (from the app/ folder)
+#   cd frontend && npm run dev       (React on http://localhost:5173, proxies /api to :8080)
+# This file is NOT used in AWS - the server runs infra/modules/app-server/files/docker-compose.yml.
+services:
+  mongo:
+    image: mongo:8.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      NODE_ENV: development
+      PORT: "8080"
+      MONGODB_URI: mongodb://mongo:27017/app
+      LOG_LEVEL: debug
+    ports:
+      - "8080:8080"
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  mongo-data:

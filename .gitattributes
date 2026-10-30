@@ -1,0 +1,12 @@
+# Store text files with LF line endings. Shell scripts and templates are executed on Linux
+# (the EC2 instance, CI runners) and break with Windows CRLF endings.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
