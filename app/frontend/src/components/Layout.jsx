@@ -4,12 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../state/AuthContext.jsx';
 
 const baseNavLinkClass =
-  'text-sm md:text-base px-3 py-2 rounded-full hover:bg-white/10 transition-all duration-200';
+  'text-sm px-4 py-2.5 rounded-xl border border-transparent hover:bg-white/[0.06] transition-all duration-200';
 
 const navLinkClass = ({ isActive }) =>
   `${baseNavLinkClass} ${
     isActive
-      ? 'bg-jaynetic-purple/20 text-jaynetic-blue font-medium shadow-sm shadow-jaynetic-purple/10'
+      ? 'border-white/10 bg-white/[0.06] text-white font-medium'
       : 'text-slate-300 hover:text-white'
   }`;
 
@@ -88,23 +88,23 @@ export const Layout = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col jaynetic-gradient relative">
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-black/50 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#070a13]/85 shadow-[0_8px_30px_rgba(0,0,0,0.2)] backdrop-blur-2xl">
+        <div className="max-w-7xl mx-auto px-4 py-3.5 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-neon-purple group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 shadow-neon-purple group-hover:scale-105 transition-transform">
               <img src="/images/l3.png" alt="Jaynetic Zone Logo" className="w-full h-full object-cover" />
             </div>
             <div className="leading-tight">
-              <div className="font-neon text-sm md:text-base tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-jaynetic-violet via-white to-jaynetic-blue">
+              <div className="font-neon text-sm md:text-base font-semibold tracking-[0.16em] text-transparent bg-clip-text bg-gradient-to-r from-jaynetic-violet via-white to-jaynetic-blue">
                 JAYNETIC ZONE
               </div>
-              <div className="text-[9px] uppercase tracking-[0.25em] text-slate-400">
-                Vadodara • PS5 & PC Gaming
+              <div className="mt-0.5 text-[9px] uppercase tracking-[0.2em] text-slate-500">
+                Vadodara <span className="text-jaynetic-blue/70">•</span> PS5 & PC Gaming
               </div>
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-2">
+          <nav className="hidden lg:flex items-center gap-1">
             <NavLinks />
           </nav>
 
@@ -113,13 +113,13 @@ export const Layout = ({ children }) => {
               <>
                 <Link
                   to="/login"
-                  className="hidden md:inline-flex text-xs md:text-sm px-4 py-1.5 rounded-full border border-white/25 hover:bg-white/10 hover:border-jaynetic-blue/50 transition-all"
+                  className="hidden md:inline-flex text-xs md:text-sm px-4 py-2 rounded-xl border border-white/10 text-slate-300 hover:bg-white/[0.06] hover:border-white/20 hover:text-white transition-all"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="hidden md:inline-flex text-xs md:text-sm px-4 py-1.5 rounded-full bg-gradient-to-r from-jaynetic-purple to-jaynetic-blue hover:brightness-110 shadow-neon-purple transition-all"
+                  className="hidden md:inline-flex text-xs md:text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-jaynetic-purple to-jaynetic-blue font-medium hover:brightness-110 shadow-neon-purple transition-all"
                 >
                   Register
                 </Link>
@@ -127,7 +127,7 @@ export const Layout = ({ children }) => {
             ) : (
               <button
                 onClick={logout}
-                className="hidden md:inline-flex text-xs md:text-sm px-4 py-1.5 rounded-full border border-red-400/50 text-red-300 hover:bg-red-500/10 transition-all"
+                className="hidden md:inline-flex text-xs md:text-sm px-4 py-2 rounded-xl border border-red-400/30 text-red-300 hover:bg-red-500/10 transition-all"
               >
                 Logout
               </button>
@@ -138,7 +138,7 @@ export const Layout = ({ children }) => {
               type="button"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               onClick={() => setMenuOpen((o) => !o)}
-              className="lg:hidden w-10 h-10 rounded-xl border border-white/15 flex flex-col items-center justify-center gap-1.5 hover:bg-white/5 transition-colors"
+              className="lg:hidden w-10 h-10 rounded-xl border border-white/10 bg-white/[0.03] flex flex-col items-center justify-center gap-1.5 hover:bg-white/[0.08] transition-colors"
             >
               <span
                 className={`block h-0.5 w-5 bg-white rounded transition-all duration-300 ${

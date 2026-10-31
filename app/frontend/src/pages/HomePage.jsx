@@ -155,74 +155,131 @@ const TickerStrip = () => {
    ═══════════════════════════════════════════════════ */
 const Hero = () => {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative isolate overflow-hidden border-b border-white/5">
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-jaynetic-bg/80 via-jaynetic-bg/60 to-jaynetic-bg" />
-        <div className="absolute inset-0 bg-gradient-to-r from-jaynetic-bg/90 via-transparent to-jaynetic-bg/70" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_35%,rgba(124,58,237,0.2),transparent_38%),radial-gradient(ellipse_at_15%_15%,rgba(34,211,238,0.1),transparent_32%)]" />
         <div className="absolute inset-0 neon-grid" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 pt-20 md:pt-28 pb-16 md:pb-24">
-        <motion.p
-          className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-jaynetic-blue bg-jaynetic-blue/10 border border-jaynetic-blue/30 px-4 py-1.5 rounded-full backdrop-blur-sm"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          Vadodara • Gujarat • India
-        </motion.p>
+      <div className="relative max-w-7xl mx-auto px-4 pt-12 md:pt-16 pb-14 md:pb-20">
+        <div className="grid lg:grid-cols-[1.05fr_0.95fr] items-center gap-10 lg:gap-16">
+          <div className="py-4">
+            <motion.p
+              className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-jaynetic-blue bg-jaynetic-blue/10 border border-jaynetic-blue/25 px-4 py-2 rounded-full backdrop-blur-sm"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              Vadodara, Gujarat <span className="text-white/30">/</span> Open daily
+            </motion.p>
 
-        <motion.h1
-          className="mt-6 font-neon font-extrabold text-4xl md:text-6xl lg:text-7xl leading-[1.05] tracking-wide"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35, duration: 0.7 }}
-        >
-          <span className="block text-white/90">UNLEASH YOUR</span>
-          <span className="gradient-text animate-flicker">INNER GAMER</span>
-        </motion.h1>
+            <motion.h1
+              className="mt-7 font-neon font-extrabold text-4xl sm:text-5xl md:text-6xl xl:text-6xl 2xl:text-7xl leading-[1.08] tracking-wide"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.7 }}
+            >
+              <span className="block text-white">YOUR NEXT</span>
+              <span className="block gradient-text">GAME NIGHT</span>
+              <span className="block text-white">STARTS HERE.</span>
+            </motion.h1>
 
-        <motion.p
-          className="mt-6 text-slate-300 text-sm md:text-base max-w-xl leading-relaxed"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          Jaynetic Zone is a high-energy, anime-inspired gaming arena in Vadodara.
-          Premium hourly gaming with PS5 consoles, high-end PCs, competitive setups,
-          and a unique Demon Slayer-themed vibe.
-        </motion.p>
+            <motion.p
+              className="mt-6 text-slate-300 text-sm md:text-base max-w-lg leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              Bring your squad, pick your platform, and play by the hour. Your
+              Vadodara home for PS5, high-end PC gaming, and racing.
+            </motion.p>
+
+            <motion.div
+              className="mt-8 flex flex-wrap gap-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65 }}
+            >
+              <Link
+                to="/book"
+                className="pulse-glow slash-hover inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-jaynetic-purple to-jaynetic-blue text-sm font-semibold tracking-wide hover:brightness-110 transition-all active:scale-95 shadow-neon-purple"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Book your session
+              </Link>
+              <Link
+                to="/rates"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border border-white/15 bg-white/[0.03] text-sm text-slate-200 hover:bg-white/[0.08] hover:border-white/30 transition-all active:scale-95"
+              >
+                Explore rates
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </motion.div>
+
+            <motion.div
+              className="mt-8 flex items-center gap-3 text-xs text-slate-400"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.85 }}
+            >
+              <span className="flex -space-x-2" aria-hidden="true">
+                <span className="w-7 h-7 rounded-full border-2 border-jaynetic-bg bg-jaynetic-purple/30 flex items-center justify-center">🎮</span>
+                <span className="w-7 h-7 rounded-full border-2 border-jaynetic-bg bg-jaynetic-blue/20 flex items-center justify-center">🏎️</span>
+              </span>
+              <span>Walk-ins welcome <span className="text-white/25">•</span> Book online anytime</span>
+            </motion.div>
+          </div>
+
+          <motion.div
+            className="relative mx-auto w-full max-w-lg"
+            initial={{ opacity: 0, scale: 0.96, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="absolute -inset-5 rounded-[2rem] bg-gradient-to-br from-jaynetic-purple/20 via-transparent to-jaynetic-blue/20 blur-2xl" />
+            <div className="relative aspect-[4/4.2] max-h-[520px] overflow-hidden rounded-[1.75rem] border border-white/15 bg-slate-900 shadow-2xl shadow-black/50">
+              <img
+                src="/images/img-6.png"
+                alt="Fighting game artwork in the Jaynetic Zone gaming arena"
+                className="absolute inset-0 h-full w-full object-cover object-top"
+                loading="eager"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050814] via-[#050814]/10 to-black/10" />
+              <div className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur-md">
+                <span className="h-1.5 w-1.5 rounded-full bg-jaynetic-blue" />
+                Find your next game
+              </div>
+              <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
+                <p className="text-[10px] uppercase tracking-[0.25em] text-jaynetic-blue">The arena is yours</p>
+                <div className="mt-2 flex items-end justify-between gap-4">
+                  <div>
+                    <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-wide text-white">Play your way.</h2>
+                    <p className="mt-1 text-xs text-slate-300">PS5 <span className="text-jaynetic-blue">/</span> PC <span className="text-jaynetic-blue">/</span> Racing</p>
+                  </div>
+                  <span className="hidden sm:inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-jaynetic-blue backdrop-blur">
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 17L17 7M7 7h10v10" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="absolute -bottom-5 -left-3 sm:-left-7 rounded-2xl border border-white/10 bg-slate-950/90 px-4 py-3 shadow-xl shadow-black/40 backdrop-blur-xl">
+              <p className="text-[9px] uppercase tracking-[0.2em] text-slate-400">Sessions from</p>
+              <p className="mt-0.5 font-display text-xl font-semibold text-white">
+                ₹100<span className="ml-1 text-xs font-normal text-slate-400">/ hour</span>
+              </p>
+            </div>
+          </motion.div>
+        </div>
 
         <motion.div
-          className="mt-8 flex flex-wrap gap-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.65 }}
-        >
-          <Link
-            to="/book"
-            className="pulse-glow slash-hover inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-jaynetic-purple to-jaynetic-blue text-sm font-semibold tracking-wide hover:brightness-110 transition-all active:scale-95 shadow-neon-purple"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            Book Now
-          </Link>
-          <Link
-            to="/rates"
-            className="inline-flex items-center gap-2 px-7 py-4 rounded-full border border-white/25 backdrop-blur-sm text-sm hover:bg-white/5 hover:border-jaynetic-blue/50 transition-all active:scale-95"
-          >
-            View Rates
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </Link>
-        </motion.div>
-
-        {/* Hero stat chips */}
-        <motion.div
-          className="mt-12 grid grid-cols-3 gap-3 max-w-xl"
+          className="mt-12 grid grid-cols-3 gap-3 md:mt-16 md:max-w-2xl"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
@@ -230,14 +287,16 @@ const Hero = () => {
           {stats.map((s) => (
             <div
               key={s.label}
-              className="rounded-xl border border-white/10 bg-black/30 backdrop-blur-sm p-3 text-center hover:border-jaynetic-purple/50 transition-colors"
+              className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-3.5 text-center backdrop-blur-sm transition-colors hover:border-jaynetic-purple/40 sm:flex sm:items-center sm:gap-3 sm:text-left sm:px-4"
             >
               <div className="text-xl md:text-2xl">{s.icon}</div>
-              <div className="stat-value font-display text-lg md:text-xl font-semibold mt-1">
-                {s.value}
-              </div>
-              <div className="text-[10px] md:text-[11px] text-slate-400 mt-0.5 leading-tight">
-                {s.label}
+              <div className="sm:min-w-0">
+                <div className="stat-value font-display text-base font-semibold md:text-lg">
+                  {s.value}
+                </div>
+                <div className="mt-0.5 text-[9px] leading-tight text-slate-400 sm:text-[10px]">
+                  {s.label}
+                </div>
               </div>
             </div>
           ))}
