@@ -35,12 +35,12 @@ const run = async () => {
 
     // Rates
     const defaultRates = [
-      { type: 'ps5', pricePerHour: 130 },
-      { type: 'gaming-pc', pricePerHour: 120 },
-      { type: 'racing-sim', pricePerHour: 150 }
+      { type: 'ps5', pricePerHour: 100 },
+      { type: 'gaming-pc', pricePerHour: 100 },
+      { type: 'racing-sim', pricePerHour: 100 }
     ];
     await Rate.insertMany(defaultRates);
-    console.log('Seeded rates: PS5=₹130/hr, Gaming PC=₹120/hr, Racing Sim=₹150/hr');
+    console.log('Seeded rates: PS5=₹100/hr, Gaming PC=₹100/hr, Racing Sim=₹100/hr');
 
     // Devices: 5 PS5s, 2 Gaming PCs (one doubles as Racing Sim)
     const devices = [];
@@ -60,5 +60,4 @@ const run = async () => {
 };
 
 run();
-
 

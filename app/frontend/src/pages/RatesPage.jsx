@@ -79,20 +79,20 @@ export const RatesPage = () => {
         <section className="grid md:grid-cols-3 gap-5 text-sm pt-6">
           <RateCard
             title="PS5 Console"
-            rate={rateMap['ps5'] ?? 130}
+            rate={rateMap['ps5'] ?? 100}
             description="Next-gen console experience with comfy couch setups. 5 consoles available."
             highlight
             count={devicesSummary?.ps5}
           />
           <RateCard
             title="Gaming PC"
-            rate={rateMap['gaming-pc'] ?? 120}
+            rate={rateMap['gaming-pc'] ?? 100}
             description="High-end RGB rig with high-refresh monitor for competitive play."
             count={devicesSummary?.gamingPc}
           />
           <RateCard
             title="Racing Simulator"
-            rate={rateMap['racing-sim'] ?? 150}
+            rate={rateMap['racing-sim'] ?? 100}
             description="Immersive racing sim setup — dual-use as Gaming PC too."
             count={devicesSummary?.racingSim}
           />

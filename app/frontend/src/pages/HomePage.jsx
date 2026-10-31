@@ -25,14 +25,14 @@ const galleryImages = [
 const stats = [
   { value: '2', label: 'Simulator + Gaming PC', icon: '🏎️' },
   { value: '5', label: 'PS5 Consoles', icon: '🎮' },
-  { value: '₹120', label: 'Starting / hour', icon: '⚡' },
+  { value: '₹100', label: 'Per hour', icon: '⚡' },
 ];
 
 const tickerItems = [
   'PS5 GAMING',
   'HIGH-END PCS',
   'RACING SIMULATOR',
-  '₹120 / HOUR STARTING',
+  '₹100 / HOUR',
   'OPEN DAILY',
   'BOOK ONLINE',
   'WALK-INS WELCOME',
@@ -156,15 +156,7 @@ const TickerStrip = () => {
 const Hero = () => {
   return (
     <section className="relative overflow-hidden">
-      {/* Background image */}
       <div className="absolute inset-0">
-        <img
-          src="/images/main-banner.png"
-          alt=""
-          aria-hidden
-          className="w-full h-full object-cover opacity-40"
-          loading="eager"
-        />
         <div className="absolute inset-0 bg-gradient-to-b from-jaynetic-bg/80 via-jaynetic-bg/60 to-jaynetic-bg" />
         <div className="absolute inset-0 bg-gradient-to-r from-jaynetic-bg/90 via-transparent to-jaynetic-bg/70" />
         <div className="absolute inset-0 neon-grid" />
