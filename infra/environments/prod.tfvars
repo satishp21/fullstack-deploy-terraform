@@ -51,5 +51,5 @@ mongodb_uri_env_name = "MONGO_URI" # env var your backend reads the connection s
 
 # ----- CI/CD (optional) ------------------------------------------------------
 # "owner/repo" to let GitHub Actions deploy with short-lived credentials (OIDC).
-github_repository = ""
+github_repository = "satishp21/fullstack-deploy-terraform"
 github_branch     = "main"
