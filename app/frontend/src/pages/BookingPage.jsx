@@ -12,7 +12,20 @@ const DEVICE_TYPES = [
   { value: 'racing-sim', label: 'Racing Simulator', icon: '🏎️', count: 1, description: 'Immersive racing sim setup' }
 ];
 
-const ALL_HOURS = Array.from({ length: 24 }, (_, h) => `${h.toString().padStart(2, '0')}:00`);
+const OPENING_HOUR = 12;
+const CLOSING_HOUR = 24;
+const ALL_HOURS = Array.from(
+  { length: CLOSING_HOUR - OPENING_HOUR },
+  (_, i) => `${(OPENING_HOUR + i).toString().padStart(2, '0')}:00`
+);
+
+const getLocalDate = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const formatTime12hFull = (hhmm) => {
   if (!hhmm) return '';
@@ -48,7 +61,7 @@ export const BookingPage = () => {
   const queryClient = useQueryClient();
 
   const [selectedType, setSelectedType] = useState('ps5');
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
+  const [selectedDate, setSelectedDate] = useState(getLocalDate);
   const [fromTime, setFromTime] = useState('');
   const [toTime, setToTime] = useState('');
   const [gameName, setGameName] = useState('');
@@ -221,7 +234,7 @@ export const BookingPage = () => {
   };
 
   const selectedDeviceInfo = DEVICE_TYPES.find((d) => d.value === selectedType);
-  const minDate = new Date().toISOString().slice(0, 10);
+  const minDate = getLocalDate();
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10 space-y-8">
@@ -494,6 +507,12 @@ export const BookingPage = () => {
                 Booking ID: {bookingSuccess._id} • Station:{' '}
                 {bookingSuccess.device?.stationNumber || 'Assigned'}
               </p>
+              {bookingSuccess.notificationSent === false && (
+                <p className="text-xs text-amber-300">
+                  Your booking is confirmed, but we couldn't email the venue.
+                  Please call +91-87581-73436 to confirm your session.
+                </p>
+              )}
               <div className="pt-2 flex flex-wrap gap-3">
                 <button
                   type="button"

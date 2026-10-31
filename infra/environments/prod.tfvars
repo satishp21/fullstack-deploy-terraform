@@ -9,7 +9,7 @@
 
 # ----- Project ---------------------------------------------------------------
 # Prefix for all resource names: 3-20 chars, lowercase letters/numbers/hyphens.
-project_name = "mern-demo"
+project_name = "gamezone-prod"
 
 # Region to deploy into. Pick one close to your users (e.g. us-east-1, eu-west-1, ap-south-1).
 aws_region = "us-east-1"
@@ -19,7 +19,7 @@ aws_region = "us-east-1"
 alert_email = ""
 
 # Monthly budget for the whole AWS account (email at 50% / 80% / forecast 100%). 0 = off.
-monthly_budget_usd = 10
+monthly_budget_usd = 30
 
 # ----- App server -------------------------------------------------------------
 # Empty = automatically pick the free-tier micro instance (t2.micro or t3.micro).
@@ -46,7 +46,7 @@ frontend_build_env     = { VITE_API_BASE_URL = "/api" }
 # ----- Database --------------------------------------------------------------
 # "local"    = MongoDB container on the server + EBS volume + daily S3 backups (free)
 # "external" = MongoDB Atlas / DocumentDB; set mongodb_uri in prod.secrets.tfvars
-database_mode        = "local"
+database_mode        = "external"
 mongodb_uri_env_name = "MONGO_URI" # env var your backend reads the connection string from
 
 # ----- CI/CD (optional) ------------------------------------------------------

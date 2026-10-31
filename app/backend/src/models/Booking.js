@@ -5,7 +5,7 @@ const bookingSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     deviceType: {
       type: String,
-      enum: ['gaming-pc', 'normal-pc', 'ps5'],
+      enum: ['gaming-pc', 'normal-pc', 'ps5', 'racing-sim'],
       required: true
     },
     device: { type: mongoose.Schema.Types.ObjectId, ref: 'Device' },
@@ -31,5 +31,4 @@ const bookingSchema = new mongoose.Schema(
 );
 
 export default mongoose.model('Booking', bookingSchema);
-
 

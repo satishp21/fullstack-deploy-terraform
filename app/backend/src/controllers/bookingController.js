@@ -50,20 +50,18 @@ export const createBooking = async (req, res) => {
 
     // Send admin email notification and handle failures gracefully
     const user = await User.findById(req.user._id).select('name email phone');
-    let notified = true;
+    let notificationSent = false;
     try {
-      notified = await sendBookingNotificationToAdmin(booking, user);
+      notificationSent = await sendBookingNotificationToAdmin(booking, user);
     } catch (mailErr) {
       console.error('Error while sending booking notification:', mailErr);
-      notified = false;
     }
 
-    if (!notified) {
+    if (!notificationSent) {
       console.warn(`Booking ${booking._id} created but admin notification failed`);
-      return res.status(500).json({ message: 'Booking failed. Please call us directly at +91-87581-73436 to book your session' });
     }
 
-    res.status(201).json(booking);
+    res.status(201).json({ ...booking.toObject(), notificationSent });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
@@ -226,9 +224,9 @@ export const getAvailability = async (req, res) => {
     }
     const bookingDate = new Date(date);
     const sameDay = new Date(bookingDate);
-    sameDay.setHours(0, 0, 0, 0);
+    sameDay.setUTCHours(0, 0, 0, 0);
     const nextDay = new Date(sameDay);
-    nextDay.setDate(nextDay.getDate() + 1);
+    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
 
     // Get all active devices of this type
     const devices = await Device.find({ type: deviceType, isActive: true });
@@ -243,9 +241,9 @@ export const getAvailability = async (req, res) => {
       date: { $gte: sameDay, $lt: nextDay }
     });
 
-    // Operating hours: 12 AM to 11 PM
+    // Operating hours: 12 PM to 11 PM, with sessions ending by midnight.
     const hours = [];
-    for (let h = 0; h <= 23; h += 1) {
+    for (let h = 12; h <= 23; h += 1) {
       hours.push(`${h.toString().padStart(2, '0')}:00`);
     }
 
@@ -294,6 +292,5 @@ export const getAvailability = async (req, res) => {
     res.status(500).json({ message: 'Failed to compute availability' });
   }
 };
-
 
 

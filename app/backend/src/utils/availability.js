@@ -26,9 +26,9 @@ export const findAvailableDevice = async (
   if (!devices.length) return null;
 
   const sameDay = new Date(date);
-  sameDay.setHours(0, 0, 0, 0);
+  sameDay.setUTCHours(0, 0, 0, 0);
   const nextDay = new Date(sameDay);
-  nextDay.setDate(nextDay.getDate() + 1);
+  nextDay.setUTCDate(nextDay.getUTCDate() + 1);
 
   const bookings = await Booking.find({
     deviceType,
@@ -67,5 +67,4 @@ export const findAvailableDevice = async (
 
   return null;
 };
-
 

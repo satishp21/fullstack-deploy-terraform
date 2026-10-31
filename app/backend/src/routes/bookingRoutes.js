@@ -18,13 +18,21 @@ router.post(
   auth,
   [
     body('deviceType')
-      .isIn(['gaming-pc', 'normal-pc', 'ps5'])
+      .isIn(['gaming-pc', 'normal-pc', 'ps5', 'racing-sim'])
       .withMessage('Invalid device type'),
     body('date').notEmpty().withMessage('Date is required'),
-    body('startTime').notEmpty().withMessage('Start time is required'),
+    body('startTime')
+      .matches(/^(1[2-9]|2[0-3]):00$/)
+      .withMessage('Bookings are available from 12:00 PM through 11:00 PM'),
     body('durationHours')
       .isInt({ min: 1, max: 6 })
-      .withMessage('Duration must be between 1 and 6 hours'),
+      .withMessage('Duration must be between 1 and 6 hours')
+      .bail()
+      .custom((durationHours, { req }) => {
+        const startHour = Number.parseInt(req.body.startTime, 10);
+        return startHour + Number(durationHours) <= 24;
+      })
+      .withMessage('Bookings must end by 12:00 AM'),
     body('gameName')
       .optional()
       .isString()
@@ -43,5 +51,4 @@ router.get('/revenue/summary', auth, adminOnly, getRevenueSummary);
 router.get('/:id/invoice', auth, adminOnly, downloadInvoice);
 
 export default router;
-
 
