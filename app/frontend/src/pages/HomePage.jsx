@@ -154,6 +154,20 @@ const TickerStrip = () => {
    HERO
    ═══════════════════════════════════════════════════ */
 const Hero = () => {
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setTimeout(
+      () => setCurrentImage((current) => (current + 1) % galleryImages.length),
+      5000
+    );
+    return () => window.clearTimeout(timer);
+  }, [currentImage]);
+
+  const showImage = (index) => {
+    setCurrentImage((index + galleryImages.length) % galleryImages.length);
+  };
+
   return (
     <section className="relative isolate overflow-hidden border-b border-white/5">
       <div className="absolute inset-0">
@@ -243,29 +257,61 @@ const Hero = () => {
           >
             <div className="absolute -inset-5 rounded-[2rem] bg-gradient-to-br from-jaynetic-purple/20 via-transparent to-jaynetic-blue/20 blur-2xl" />
             <div className="relative aspect-[4/4.2] max-h-[520px] overflow-hidden rounded-[1.75rem] border border-white/15 bg-slate-900 shadow-2xl shadow-black/50">
-              <img
-                src="/images/img-6.png"
-                alt="Fighting game artwork in the Jaynetic Zone gaming arena"
-                className="absolute inset-0 h-full w-full object-cover object-top"
-                loading="eager"
-              />
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={galleryImages[currentImage].src}
+                  src={galleryImages[currentImage].src}
+                  alt={galleryImages[currentImage].alt}
+                  className="absolute inset-0 h-full w-full object-cover object-top"
+                  initial={{ opacity: 0, scale: 1.04 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.55, ease: 'easeOut' }}
+                  loading={currentImage === 0 ? 'eager' : 'lazy'}
+                />
+              </AnimatePresence>
               <div className="absolute inset-0 bg-gradient-to-t from-[#050814] via-[#050814]/10 to-black/10" />
               <div className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur-md">
                 <span className="h-1.5 w-1.5 rounded-full bg-jaynetic-blue" />
                 Find your next game
               </div>
+              <button
+                type="button"
+                onClick={() => showImage(currentImage - 1)}
+                aria-label="Show previous game image"
+                className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition hover:bg-black/65 focus:outline-none focus-visible:ring-2 focus-visible:ring-jaynetic-blue"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => showImage(currentImage + 1)}
+                aria-label="Show next game image"
+                className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition hover:bg-black/65 focus:outline-none focus-visible:ring-2 focus-visible:ring-jaynetic-blue"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
               <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
-                <p className="text-[10px] uppercase tracking-[0.25em] text-jaynetic-blue">The arena is yours</p>
-                <div className="mt-2 flex items-end justify-between gap-4">
-                  <div>
-                    <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-wide text-white">Play your way.</h2>
-                    <p className="mt-1 text-xs text-slate-300">PS5 <span className="text-jaynetic-blue">/</span> PC <span className="text-jaynetic-blue">/</span> Racing</p>
-                  </div>
-                  <span className="hidden sm:inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-jaynetic-blue backdrop-blur">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 17L17 7M7 7h10v10" />
-                    </svg>
-                  </span>
+                <p className="text-[10px] uppercase tracking-[0.25em] text-jaynetic-blue">
+                  Featured game <span className="text-white/40">/</span> {String(currentImage + 1).padStart(2, '0')} of {String(galleryImages.length).padStart(2, '0')}
+                </p>
+                <div className="mt-4 flex gap-1.5" aria-label="Choose a game image">
+                  {galleryImages.map((image, index) => (
+                    <button
+                      key={image.src}
+                      type="button"
+                      onClick={() => showImage(index)}
+                      aria-label={`Show ${image.label}`}
+                      aria-current={index === currentImage ? 'true' : undefined}
+                      className={`h-1.5 rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-jaynetic-blue ${
+                        index === currentImage ? 'w-7 bg-jaynetic-blue' : 'w-1.5 bg-white/50 hover:bg-white/80'
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
@@ -444,28 +490,6 @@ const ServiceCard = ({ service, index }) => {
 };
 
 /* ═══════════════════════════════════════════════════
-   GALLERY IMAGE
-   ═══════════════════════════════════════════════════ */
-const GalleryImage = ({ img, index }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  return (
-    <motion.div
-      ref={ref}
-      className="gallery-item aspect-[3/4] border border-white/10 bg-slate-900/50"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ duration: 0.5, delay: index * 0.08 }}
-    >
-      <img src={img.src} alt={img.alt} className="w-full h-full object-cover object-top" loading="lazy" />
-      <div className="overlay flex items-end p-4">
-        <span className="text-xs font-medium tracking-wide text-white/90">{img.label}</span>
-      </div>
-    </motion.div>
-  );
-};
-
-/* ═══════════════════════════════════════════════════
    SECTION LABEL (reusable heading pattern)
    ═══════════════════════════════════════════════════ */
 const SectionLabel = ({ tag, title, subtitle }) => (
@@ -621,23 +645,6 @@ export const HomePage = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {services.map((s, i) => (
               <ServiceCard key={i} service={s} index={i} />
-            ))}
-          </div>
-        </RevealSection>
-
-        {/* ──────── DIVIDER ──────── */}
-        <div className="section-divider max-w-4xl mx-auto my-4" />
-
-        {/* ──────── GALLERY ──────── */}
-        <RevealSection className="max-w-6xl mx-auto px-4 py-16">
-          <SectionLabel
-            tag="Our vibe"
-            title="Gallery Vibes"
-            subtitle="Step into a high-energy esports atmosphere powered by neon aesthetics, elite gaming rigs, and pro-level racing simulators. Take a look at where champions play."
-          />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {galleryImages.map((img, i) => (
-              <GalleryImage key={i} img={img} index={i} />
             ))}
           </div>
         </RevealSection>
